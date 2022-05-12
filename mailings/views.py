@@ -1,9 +1,9 @@
-from mailchimp3 import MailChimp
 from django.http import JsonResponse
 from django.conf import settings
-
 from cases.models import Case
 from .models import CommonMailingList, CaseMailingList
+from .mailchimp_services import _get_mailchimp_client, _add_mailchimp_tag, _add_mailchimp_email_with_tag, \
+    _add_email_to_mailchimp_audience, _get_mailchimp_subscriber_hash
 
 
 def add_to_common_list_view(request):
@@ -13,30 +13,9 @@ def add_to_common_list_view(request):
     if not email:
         return JsonResponse({'success': False, 'message': 'Передайте email'})
 
-    # Получение mailchimp клиента
-    mailchimp_client = MailChimp(
-        mc_api=settings.MAILCHIMP_API_KEY,
-        mc_user=settings.MAILCHIMP_USERNAME)
-    # Добавления в mailchimp аудиторию новые email'ы
-
-    mailchimp_client.lists.members.create(settings.MAILCHIMP_COMMON_LIST_ID, {
-        'email_address': email,
-        'status': 'subscribed'
-    })
-
-    # Получения subscriber hash
-    subscriber_hash = mailchimp_client \
-        .search_members \
-        .get(query=email,
-             fields='exact_matches.members.id') \
-        .get('exact_matches') \
-        .get('members')[0].get('id')
-
-    # Добавления тега
-    mailchimp_client.lists.members.tags.update(
-        list_id=settings.MAILCHIMP_COMMON_LIST_ID,
-        subscriber_hash=subscriber_hash,
-        data={'tags': [{'name': 'COMMON TAG', 'status': 'active'}]})
+    _add_mailchimp_email_with_tag(audience_id=settings.MAILCHIMP_COMMON_LIST_ID,
+                                  email=email,
+                                  tag='COMMON TAG')
 
     # Добавления записи в базу данных
     CommonMailingList.objects.get_or_create(email=email)
@@ -54,33 +33,12 @@ def add_to_case_list_view(request):
     if not case_id:
         return JsonResponse({'success': False, 'message': 'Передайте case_id'})
 
-    # Получение mailchimp клиента
-    mailchimp_client = MailChimp(
-        mc_api=settings.MAILCHIMP_API_KEY,
-        mc_user=settings.MAILCHIMP_USERNAME)
-    # Добавления в mailchimp аудиторию новые email'ы
-
-    mailchimp_client.lists.members.create(settings.MAILCHIMP_CASE_LIST_ID, {
-        'email_address': email,
-        'status': 'subscribed'
-    })
-
-    # Получения subscriber hash
-    subscriber_hash = mailchimp_client \
-        .search_members \
-        .get(query=email,
-             fields='exact_matches.members.id') \
-        .get('exact_matches') \
-        .get('members')[0].get('id')
-
     case = Case.objects.get(pk=case_id)
     case_tag = f'Case {case.name}'
 
-    # Добавления тега
-    mailchimp_client.lists.members.tags.update(
-        list_id=settings.MAILCHIMP_CASE_LIST_ID,
-        subscriber_hash=subscriber_hash,
-        data={'tags': [{'name': case_tag, 'status': 'active'}]})
+    _add_mailchimp_email_with_tag(audience_id=settings.MAILCHIMP_CASE_LIST_ID,
+                                  email=email,
+                                  tag=case_tag)
 
     # Добавления записи в базу данных
     CaseMailingList.objects.get_or_create(email=email, case=case)
