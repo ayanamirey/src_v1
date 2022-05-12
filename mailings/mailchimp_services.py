@@ -3,6 +3,14 @@ from mailchimp3 import MailChimp
 from django.conf import settings
 
 
+def add_mailchimp_email_with_tag(audience_name: str, email: str, tag: str) -> None:
+    """Добавляет в Mailchimp email в аудиторию с названием audience_name"""
+    _add_email_to_mailchimp_audience(audience_id=settings.MAILCHIMP_AUDIENCES.get(audience_name),
+                                     email=email)
+    _add_mailchimp_tag(audience_id=settings.MAILCHIMP_AUDIENCES.get(audience_name),
+                       subscriber_hash=_get_mailchimp_subscriber_hash(email),
+                       tag=tag)
+
 def _get_mailchimp_client() -> MailChimp:
     """Возвращает клиент API для работы с Mailchimp"""
     return MailChimp(
@@ -38,12 +46,3 @@ def _add_mailchimp_tag(audience_id: str, subscriber_hash: str, tag: str) -> None
         list_id=audience_id,
         subscriber_hash=subscriber_hash,
         data={'tags': [{'name': tag, 'status': 'active'}]})
-
-
-def _add_mailchimp_email_with_tag(audience_id: str, email: str, tag: str) -> None:
-    """Добавляет в Mailchimp email в аудиторию с идентификатором audience_id"""
-    _add_email_to_mailchimp_audience(audience_id=audience_id,
-                                     email=email)
-    _add_mailchimp_tag(audience_id=audience_id,
-                       subscriber_hash=_get_mailchimp_subscriber_hash(email),
-                       tag=tag)
