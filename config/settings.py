@@ -1,18 +1,18 @@
-from pathlib import Path
+import os
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
+# See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-6nhvvcvmib4l-#^^fs=n7@@5p(b1*h4asq#+t!n$=vu&c(6#me'
+SECRET_KEY = 'pw+*a^45y7s_f(im29%4ot2222m1h7zed4w+$03_trf4)0)!l!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['dbms_template_domain']
 
 # Application definition
 
@@ -60,17 +60,21 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
-# https://docs.djangoproject.com/en/4.0/ref/settings/#databases
+# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'db_name',
+        'USER': 'dbms',
+        'PASSWORD': 'db_password',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 
 # Password validation
-# https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
+# https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -88,7 +92,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-# https://docs.djangoproject.com/en/4.0/topics/i18n/
+# https://docs.djangoproject.com/en/2.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -96,14 +100,16 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
+USE_L10N = True
+
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.0/howto/static-files/
+# https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+MAILCHIMP_API_KEY = os.getenv('MAILCHIMP_API_KEY')
+MAILCHIMP_USERNAME = os.getenv('MAILCHIMP_USERNAME')
+MAILCHIMP_COMMON_LIST_ID = '123456'
+MAILCHIMP_CASE_LIST_ID = '222333'
