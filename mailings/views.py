@@ -1,12 +1,8 @@
 from django.http import JsonResponse
-from django.conf import settings
-from cases.models import Case
-from .models import CommonMailingList, CaseMailingList
-from .mailchimp_services import add_mailchimp_email_with_tag
-from .services import add_email_to_common_mailchimp_list
+from .services import add_email_to_common_mailchimp_list, add_email_to_case_mailchimp_list
 
 
-def add_to_common_list_view(request):
+def add_email_to_common_mailchimp_list_view(request):
     """Веб-сервис, добавляющий email в общий лист рассылки"""
 
     email = request.GET.get('email')
@@ -16,7 +12,7 @@ def add_to_common_list_view(request):
     return JsonResponse({'success': True})
 
 
-def add_to_case_list_view(request):
+def add_email_to_case_mailchimp_list_view(request):
     """Веб-сервис, добавляющий email в лист рассылок по конкретному делу"""
     # Проверка email'а
     email = request.GET.get('email')
@@ -26,6 +22,6 @@ def add_to_case_list_view(request):
     if not case_id:
         return JsonResponse({'success': False, 'message': 'Передайте case_id'})
 
-
+    add_email_to_case_mailchimp_list(email=email, case_id=case_id)
 
     return JsonResponse({'success': True})
